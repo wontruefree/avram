@@ -18,10 +18,12 @@ module Avram::UniqueColumns
     end
   end
 
-  {% for method in ["find_or_create!", "find_or_create", "upsert", "upsert!"] %}
-    # :nodoc:
-    def self.{{ method.id }}(*args, **named_args)
-      \{% raise "Please call 'unique_columns' on your operation before using '{{ method.id }}'." %}
+  # :nodoc:
+  macro included
+      {% for method in ["find_or_create!", "find_or_create", "upsert", "upsert!"] %}
+        def self.{{ method.id }}(*args, **named_args)
+          \{% raise "Please call 'unique_columns' on your operation before using '{{ method.id }}'" %}
+        end
+      {% end %}
     end
-  {% end %}
 end
