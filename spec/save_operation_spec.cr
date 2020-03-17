@@ -49,6 +49,10 @@ private class ParamKeySaveOperation < ValueColumnModel::SaveOperation
   param_key :custom_param
 end
 
+private class UniqueUserSaveOperation < User::SaveOperation
+  unique_columns name, nickname
+end
+
 describe "Avram::SaveOperation" do
   it "allows overriding the param_key" do
     ParamKeySaveOperation.param_key.should eq "custom_param"
@@ -117,6 +121,52 @@ describe "Avram::SaveOperation" do
 
     operation.changes.has_key?(:name).should be_true
     operation.changes[:name].should be_nil
+  end
+
+  describe ".find_or_create with unique_columns" do
+    it "returns the existing record if one exists" do
+      existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
+
+      user = UniqueUserSaveOperation.find_or_create(
+        name: "Rich",
+        nickname: nil,
+        age: 30,
+        joined_at: Time.utc
+      )
+
+      UserQuery.new.select_count.should eq(1)
+      user.should eq(existing_user)
+      # Uses existing age. Does not do an update.
+      user.age.should(20)
+    end
+
+    it "creates a new record if one doesn't exist" do
+      existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
+      joined_at = Time.utc
+
+      user = UniqueUserSaveOperation.find_or_create(
+        name: "Rich",
+        nickname: "R.",
+        age: 30,
+        joined_at: joined_at
+      )
+
+      UserQuery.new.select_count.should eq(2)
+      existing_user.age.should eq(20)
+      existing_user.nickname.should eq(nil)
+      user.name.should eq("Rich")
+      user.nickname.should eq("R.")
+      user.age.should eq(30)
+      user.joined_at.should eq(joined_at)
+    end
+  end
+
+  describe ".upsert with unique_columns" do
+    it "updates the existing record if one exists" do
+    end
+
+    it "creates a new record if one doesn't exist" do
+    end
   end
 
   describe "#errors" do
