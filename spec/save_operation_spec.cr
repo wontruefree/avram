@@ -50,7 +50,7 @@ private class ParamKeySaveOperation < ValueColumnModel::SaveOperation
 end
 
 private class UniqueUserSaveOperation < User::SaveOperation
-  unique_columns name, nickname
+  unique_columns :name, :nickname
 end
 
 describe "Avram::SaveOperation" do
@@ -127,7 +127,7 @@ describe "Avram::SaveOperation" do
     it "returns the existing record if one exists" do
       existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
 
-      user = UniqueUserSaveOperation.find_or_create(
+      user = UniqueUserSaveOperation.find_or_create!(
         name: "Rich",
         nickname: nil,
         age: 30,
@@ -144,7 +144,7 @@ describe "Avram::SaveOperation" do
       existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
       joined_at = Time.utc
 
-      user = UniqueUserSaveOperation.find_or_create(
+      user = UniqueUserSaveOperation.find_or_create!(
         name: "Rich",
         nickname: "R.",
         age: 30,

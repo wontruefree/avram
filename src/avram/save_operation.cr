@@ -7,6 +7,7 @@ require "./define_attribute"
 require "./mark_as_failed"
 require "./param_key_override"
 require "./inherit_column_attributes"
+require "./unique_columns"
 
 abstract class Avram::SaveOperation(T) < Avram::Operation
   include Avram::NeedyInitializerAndSaveMethods
@@ -15,6 +16,7 @@ abstract class Avram::SaveOperation(T) < Avram::Operation
   include Avram::NestedSaveOperation
   include Avram::MarkAsFailed
   include Avram::InheritColumnAttributes
+  include Avram::UniqueColumns
 
   enum SaveStatus
     Saved
