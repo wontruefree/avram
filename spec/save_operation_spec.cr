@@ -135,14 +135,15 @@ describe "Avram::SaveOperation" do
       )
 
       UserQuery.new.select_count.should eq(1)
+      user = user.not_nil!
       user.should eq(existing_user)
       # Uses existing age. Does not do an update.
-      user.age.should(20)
+      user.age.should eq(20)
     end
 
     it "creates a new record if one doesn't exist" do
       existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
-      joined_at = Time.utc
+      joined_at = Time.utc.at_beginning_of_second
 
       user = UniqueUserSaveOperation.find_or_create!(
         name: "Rich",
@@ -154,6 +155,7 @@ describe "Avram::SaveOperation" do
       UserQuery.new.select_count.should eq(2)
       existing_user.age.should eq(20)
       existing_user.nickname.should eq(nil)
+      user = user.not_nil!
       user.name.should eq("Rich")
       user.nickname.should eq("R.")
       user.age.should eq(30)

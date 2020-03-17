@@ -1,5 +1,6 @@
 module Avram::UniqueColumns
   macro unique_columns(*attribute_names)
+    {% @type %}
     def self.find_or_create!(*args, **named_args)
       operation = new(*args, **named_args)
 
@@ -12,13 +13,15 @@ module Avram::UniqueColumns
       if existing_record
         existing_record
       else
-        operation.create!
+        operation.save!
       end
     end
   end
 
-  # :nodoc:
-  def self.find_or_create!(*args, **named_args)
-    {% raise "Please call 'unique_columns' on your operation before using 'find_or_create'." %}
-  end
+  {% for method in ["find_or_create!", "find_or_create", "upsert", "upsert!"] %}
+    # :nodoc:
+    def self.{{ method.id }}(*args, **named_args)
+      \{% raise "Please call 'unique_columns' on your operation before using '{{ method.id }}'." %}
+    end
+  {% end %}
 end
