@@ -166,25 +166,29 @@ describe "Avram::SaveOperation" do
   describe ".upsert with unique_columns" do
     it "updates the existing record if one exists" do
       existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
+      joined_at = Time.utc.at_beginning_of_second
 
       user = UniqueUserSaveOperation.upsert!(
         name: "Rich",
         nickname: nil,
         age: 30,
-        joined_at: Time.utc
+        joined_at: joined_at
       )
 
       UserQuery.new.select_count.should eq(1)
       user = user.not_nil!
       user.id.should eq(existing_user.id)
+      user.name.should eq("Rich")
+      user.nickname.should be_nil
       user.age.should eq(30)
+      user.joined_at.should eq(joined_at)
     end
 
     it "creates a new record if one doesn't exist" do
       existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
       joined_at = Time.utc.at_beginning_of_second
 
-      user = UniqueUserSaveOperation.find_or_create!(
+      user = UniqueUserSaveOperation.upsert!(
         name: "Rich",
         nickname: "R.",
         age: 30,
@@ -197,6 +201,7 @@ describe "Avram::SaveOperation" do
       existing_user.nickname.should eq(nil)
 
       user = user.not_nil!
+      user.id.should_not eq(existing_user.id)
       user.name.should eq("Rich")
       user.nickname.should eq("R.")
       user.age.should eq(30)
