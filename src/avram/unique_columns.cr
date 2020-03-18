@@ -18,6 +18,20 @@ module Avram::UniqueColumns
     end
 
     def self.upsert!(*args, **named_args)
+      operation = new(*args, **named_args)
+
+      existing_record = T::BaseQuery.new
+        {% for attribute in attribute_names %}
+          .{{ attribute.id }}.nilable_eq(operation.{{ attribute.id }}.value)
+        {% end %}
+        .first?
+
+      if existing_record
+        operation.record = existing_record
+        operation.save!
+      else
+        operation.save!
+      end
     end
   end
 

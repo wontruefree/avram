@@ -176,7 +176,7 @@ describe "Avram::SaveOperation" do
 
       UserQuery.new.select_count.should eq(1)
       user = user.not_nil!
-      user.id eq(existing_user.id)
+      user.id.should eq(existing_user.id)
       user.age.should eq(30)
     end
 

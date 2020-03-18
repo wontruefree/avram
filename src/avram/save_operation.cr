@@ -32,6 +32,7 @@ abstract class Avram::SaveOperation(T) < Avram::Operation
     @@schema_class = T
   end
 
+  property record
   property save_status
 
   @record : T?
