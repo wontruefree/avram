@@ -16,13 +16,16 @@ module Avram::UniqueColumns
         operation.save!
       end
     end
+
+    def self.upsert!(*args, **named_args)
+    end
   end
 
   # :nodoc:
   macro included
       {% for method in ["find_or_create!", "find_or_create", "upsert", "upsert!"] %}
         def self.{{ method.id }}(*args, **named_args)
-          \{% raise "Please call 'unique_columns' on your operation before using '{{ method.id }}'" %}
+          \{% raise "Please call 'unique_columns' on #{@type} before using '{{ method.id }}'" %}
         end
       {% end %}
     end
