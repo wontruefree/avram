@@ -1,14 +1,8 @@
 module Avram::UniqueColumns
   macro unique_columns(*attribute_names)
-    {% @type %}
     def self.find_or_create!(*args, **named_args)
       operation = new(*args, **named_args)
-
-      existing_record = T::BaseQuery.new
-        {% for attribute in attribute_names %}
-          .{{ attribute.id }}.nilable_eq(operation.{{ attribute.id }}.value)
-        {% end %}
-        .first?
+      existing_record = find_existing_unique_record(operation)
 
       if existing_record
         existing_record
@@ -19,12 +13,7 @@ module Avram::UniqueColumns
 
     def self.upsert!(*args, **named_args)
       operation = new(*args, **named_args)
-
-      existing_record = T::BaseQuery.new
-        {% for attribute in attribute_names %}
-          .{{ attribute.id }}.nilable_eq(operation.{{ attribute.id }}.value)
-        {% end %}
-        .first?
+      existing_record = find_existing_unique_record(operation)
 
       if existing_record
         operation.record = existing_record
@@ -32,6 +21,14 @@ module Avram::UniqueColumns
       else
         operation.save!
       end
+    end
+
+    def self.find_existing_unique_record(operation) : T?
+      T::BaseQuery.new
+        {% for attribute in attribute_names %}
+          .{{ attribute.id }}.nilable_eq(operation.{{ attribute.id }}.value)
+        {% end %}
+        .first?
     end
   end
 

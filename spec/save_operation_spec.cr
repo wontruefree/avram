@@ -123,7 +123,7 @@ describe "Avram::SaveOperation" do
     operation.changes[:name].should be_nil
   end
 
-  describe ".find_or_create with unique_columns" do
+  describe ".find_or_create!" do
     it "returns the existing record if one exists" do
       existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
 
@@ -163,7 +163,7 @@ describe "Avram::SaveOperation" do
     end
   end
 
-  describe ".upsert with unique_columns" do
+  describe ".upsert! with unique_columns" do
     it "updates the existing record if one exists" do
       existing_user = UserBox.create &.name("Rich").nickname(nil).age(20)
       joined_at = Time.utc.at_beginning_of_second
